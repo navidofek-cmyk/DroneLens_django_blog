@@ -1,0 +1,48 @@
+repos:
+
+  # ── Ruff — lint + autoformat ──────────────────────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.12
+    hooks:
+      - id: ruff               # lint (chyby, nepoužité importy…)
+        args: [--fix]
+      - id: ruff-format        # formátování kódu
+
+  # ── Bandit — security scan ────────────────────────────────────────────────
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
+    hooks:
+      - id: bandit
+        args: ["-r", "blog/", "django_blog/", "-ll"]
+        pass_filenames: false   # spustí na celých složkách, ne jen změněných souborech
+
+  # ── Základní soubory ──────────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace       # odstraní mezery na konci řádků
+      - id: end-of-file-fixer         # soubory končí novým řádkem
+      - id: check-yaml                # validuje YAML soubory (ci.yml, cd.yml…)
+      - id: check-json                # validuje JSON
+      - id: check-merge-conflict      # zjistí nezpracované merge konflikty
+      - id: check-added-large-files   # varuje při commitnutí velkých souborů
+        args: [--maxkb=1000]
+      - id: debug-statements          # najde zapomenutá print() / pdb.set_trace()
+
+  # ── Django migrace ────────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: django-check-migrations
+        name: "Django: zkontroluj chybějící migrace"
+        entry: uv run python manage.py makemigrations --check --dry-run
+        language: system
+        pass_filenames: false
+        files: ^blog/models\.py$    # spustí se jen při změně models.py
+
+      - id: django-check
+        name: "Django: system check"
+        entry: uv run python manage.py check
+        language: system
+        pass_filenames: false
+        always_run: false
+        files: ^(blog|django_blog)/.*\.py$

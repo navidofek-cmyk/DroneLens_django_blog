@@ -151,12 +151,36 @@ Klíčové proměnné:
 
 ---
 
+## Pre-commit hooks
+
+Před každým `git commit` se automaticky spustí kontroly:
+
+```bash
+uv run pre-commit install   # jednorázová aktivace (po klonování)
+uv run pre-commit run --all-files  # ruční spuštění na celém projektu
+```
+
+| Hook | Co kontroluje |
+|------|--------------|
+| `ruff` | Lint + automatická oprava (nepoužité importy, styl…) |
+| `ruff-format` | Formátování kódu |
+| `bandit` | Bezpečnostní problémy (hardcoded hesla, SQL injection…) |
+| `trailing-whitespace` | Mezery na konci řádků |
+| `check-yaml` | Validita YAML souborů (ci.yml, cd.yml…) |
+| `check-merge-conflict` | Nezpracované merge konflikty |
+| `check-added-large-files` | Varuje při commitnutí souboru > 1 MB |
+| `debug-statements` | Zapomenutá `print()` nebo `pdb.set_trace()` |
+| `django-check-migrations` | Chybějící migrační soubory po změně modelu |
+| `django-check` | Django system check (chyby konfigurace) |
+
+---
+
 ## CI/CD
 
 Pipeline v `.github/workflows/`:
 
 - **CI** (`ci.yml`) — ruff lint · bandit security scan · 93 pytest testů · ESLint · Vite build · Docker push do ghcr.io
-- **CD** (`cd.yml`) — SSH deploy na server · health check · Slack notifikace
+- **CD** (`cd.yml`) — SSH deploy na server · health check · Slack notifikace (spouští se ručně nebo na tag `v*`)
 
 ---
 
