@@ -8,7 +8,7 @@ import { AuthProvider } from '../context/AuthContext'
  * @param {ReactElement} ui
  * @param {{ route?: string, initialEntries?: string[] }} options
  */
-export function renderWithProviders(ui, { route = '/', initialEntries } = {}) {
+export function renderWithProviders(ui, { initialEntries } = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false, gcTime: 0 },

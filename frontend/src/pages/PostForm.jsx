@@ -41,6 +41,7 @@ export default function PostForm({ editMode = false }) {
   // Load existing post when editing
   useEffect(() => {
     if (!editMode || !slug) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingPost(true)
     api.get(`/posts/${slug}/`)
       .then(({ data }) => {

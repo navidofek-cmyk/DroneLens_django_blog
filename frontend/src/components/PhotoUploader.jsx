@@ -74,7 +74,7 @@ export default function PhotoUploader({ postSlug, onUploaded }) {
         ))
         uploaded.push(data)
 
-      } catch (err) {
+      } catch {
         setFiles(prev => prev.map(f =>
           f.file === item.file ? { ...f, status: 'error' } : f
         ))

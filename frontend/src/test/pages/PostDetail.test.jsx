@@ -1,10 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { Routes, Route } from 'react-router-dom'
-import { http, HttpResponse } from 'msw'
 import PostDetail from '../../pages/PostDetail'
 import { renderWithProviders, mockLoggedIn, mockLoggedOut } from '../helpers'
-import { server } from '../mocks/server'
 
 // PostDetail používá useParams() — musí být v Route kontextu
 function PostDetailRoute() {

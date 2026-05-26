@@ -1,10 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { http, HttpResponse } from 'msw'
 import Login from '../../pages/Login'
 import { renderWithProviders, mockLoggedOut } from '../helpers'
-import { server } from '../mocks/server'
 
 describe('Login', () => {
 

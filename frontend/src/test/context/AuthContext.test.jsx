@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { screen, waitFor, act } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { screen, waitFor } from '@testing-library/react'
 import { renderWithProviders, mockLoggedOut } from '../helpers'
 import { useAuth } from '../../context/AuthContext'
 

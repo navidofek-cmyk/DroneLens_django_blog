@@ -7,8 +7,8 @@ export default defineConfig({
     port: 5173,
     host: true,
     proxy: {
-      '/api':   { target: process.env.VITE_API_URL || 'http://192.168.0.163:8001', changeOrigin: true },
-      '/media': { target: process.env.VITE_API_URL || 'http://192.168.0.163:8001', changeOrigin: true },
+      '/api':   { target: 'http://192.168.0.163:8001', changeOrigin: true },
+      '/media': { target: 'http://192.168.0.163:8001', changeOrigin: true },
     },
   },
   test: {
