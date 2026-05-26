@@ -21,7 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-1o9&_!pl&)^*!)qz8dd-ecm9npu-9z(%0!p0$$sxph0$#joo8e')
+SECRET_KEY = os.environ.get(  # nosec B105 — fallback pouze pro lokální vývoj
+    'DJANGO_SECRET_KEY',
+    'django-insecure-local-dev-only-not-for-production-change-me'
+)
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
@@ -217,6 +220,14 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 ).split()
 CORS_ALLOW_CREDENTIALS = True
 
-# Whitenoise — static files v produkci
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Whitenoise — static files v produkci (Django 6 STORAGES API)
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}

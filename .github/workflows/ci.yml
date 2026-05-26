@@ -47,16 +47,16 @@ jobs:
 
       - name: ✅ Run tests
         env:
-          DJANGO_SECRET_KEY: ci-secret-key-not-real
+          DJANGO_SECRET_KEY: ci-secret-key-not-real-but-long-enough-for-jwt-32chars
           DJANGO_DEBUG: "True"
           DATABASE_URL: postgresql://testuser:testpass@localhost:5432/test_droneview
         run: uv run pytest --tb=short -q
 
-      - name: 📦 Check migrations are up to date
+      - name: 📦 Zkontroluj chybějící migrace
         env:
-          DJANGO_SECRET_KEY: ci-secret-key-not-real
+          DJANGO_SECRET_KEY: ci-secret-key-not-real-but-long-enough-for-jwt-32chars
           DATABASE_URL: postgresql://testuser:testpass@localhost:5432/test_droneview
-        run: uv run python manage.py migrate --check
+        run: uv run python manage.py makemigrations --check --dry-run
 
   # ─── Frontend build ────────────────────────────────────────────────────────
   frontend:
