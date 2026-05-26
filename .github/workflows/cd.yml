@@ -1,9 +1,17 @@
 name: CD — Deploy to Production
 
 on:
+  # Pouze ruční spuštění nebo přes tag (ne automaticky na každý push)
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Prostředí pro deploy'
+        required: true
+        default: 'production'
+        type: choice
+        options: [production, staging]
   push:
-    branches: [main]
-    tags: ['v*']          # deploy také na tag v1.0.0, v2.3.1 atd.
+    tags: ['v*']   # deploy na tag v1.0.0, v2.3.1 atd.
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -12,7 +20,7 @@ jobs:
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
-    environment: production   # GitHub Environment s ochranou (required reviewers)
+    environment: production
 
     steps:
       - uses: actions/checkout@v4
@@ -25,16 +33,10 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd /srv/droneview
-
-            # Stáhni nové image
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose -f docker-compose.prod.yml pull
-
-            # Zero-downtime restart
-            docker compose -f docker-compose.prod.yml up -d --no-deps --build backend
-            docker compose -f docker-compose.prod.yml up -d --no-deps --build frontend
-
-            # Cleanup starých images
+            docker compose -f docker-compose.prod.yml up -d --no-deps backend
+            docker compose -f docker-compose.prod.yml up -d --no-deps frontend
             docker image prune -f
 
       - name: ✅ Health check
@@ -42,7 +44,7 @@ jobs:
           sleep 10
           curl -f https://${{ secrets.DEPLOY_HOST }}/api/posts/ || exit 1
 
-      - name: 📢 Notify (volitelné)
+      - name: 📢 Slack notifikace
         if: always()
         uses: slackapi/slack-github-action@v1
         with:
@@ -52,4 +54,4 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-        continue-on-error: true   # notifikace není kritická
+        continue-on-error: true
