@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rychlý start — DroneLens Docs</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span class="logo-text">DroneLens</span>
+    </div>
+    <span class="logo-sub">Dokumentace v1.0</span>
+  </a>
+  <div class="sidebar-nav">
+    <div class="nav-section">Začínáme</div>
+    <a href="index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Přehled projektu</a>
+    <a href="getting-started.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>Rychlý start</a>
+    <div class="nav-section">Architektura</div>
+    <a href="architecture.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6"/><rect x="16" y="3" width="6" height="6"/><rect x="9" y="15" width="6" height="6"/><path d="M5 9v3h14V9M12 12v3"/></svg>Architektura</a>
+    <a href="models.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Databázové modely</a>
+    <div class="nav-section">Backend</div>
+    <a href="api.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>API Reference</a>
+    <a href="auth.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Autentizace (JWT)</a>
+    <div class="nav-section">Frontend</div>
+    <a href="frontend.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>React komponenty</a>
+    <div class="nav-section">Provoz</div>
+    <a href="docker.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16M4 15h16M10 3L8 21M14 3l2 18"/></svg>Docker</a>
+    <a href="deployment.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>CI/CD &amp; Deploy</a>
+    <a href="testing.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Testy</a>
+  </div>
+  <div class="sidebar-footer">Django 6 · React 19 · DRF · JWT</div>
+</nav>
+
+<main class="main">
+
+  <div class="page-header">
+    <span class="badge">Začínáme</span>
+    <h1>⚡ Rychlý start</h1>
+    <p>Od nulového stavu ke spuštěné aplikaci — lokálně i v Dockeru.</p>
+  </div>
+
+  <div class="toc">
+    <strong>Obsah stránky</strong>
+    <a href="#prerekvizity">Prerekvizity</a>
+    <a href="#lokalny">Lokální vývoj</a>
+    <a href="#docker-dev">Docker (dev)</a>
+    <a href="#prvni-uzivatel">První uživatel</a>
+    <a href="#porty">Přehled portů</a>
+  </div>
+
+  <h2 id="prerekvizity">Prerekvizity</h2>
+  <table>
+    <thead><tr><th>Nástroj</th><th>Min. verze</th><th>Instalace</th></tr></thead>
+    <tbody>
+      <tr><td><code>Python</code></td><td>3.12</td><td><a href="https://python.org" target="_blank">python.org</a></td></tr>
+      <tr><td><code>UV</code></td><td>latest</td><td><code>curl -LsSf https://astral.sh/uv/install.sh | sh</code></td></tr>
+      <tr><td><code>Node.js</code></td><td>20+</td><td><a href="https://nodejs.org" target="_blank">nodejs.org</a></td></tr>
+      <tr><td><code>Docker</code></td><td>24+</td><td><a href="https://docs.docker.com/get-docker/" target="_blank">docs.docker.com</a></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="lokalny">Lokální vývoj (bez Dockeru)</h2>
+
+  <h3>1. Backend</h3>
+
+  <pre><code># Klonování repozitáře
+git clone https://github.com/your-org/django_blog.git
+cd django_blog
+
+# Instalace závislostí přes UV (vytvoří .venv automaticky)
+uv sync
+
+# Inicializace DB
+uv run python manage.py migrate
+
+# Vytvoření admin účtu
+uv run python manage.py createsuperuser
+
+# Spuštění na portu 8001
+uv run python manage.py runserver 8001</code></pre>
+
+  <div class="callout info">
+    <strong>Poznámka</strong>
+    Backend API je dostupné na <code>http://localhost:8001/api/</code>. Admin rozhraní: <code>http://localhost:8001/admin/</code>.
+  </div>
+
+  <h3>2. Frontend</h3>
+
+  <pre><code>cd frontend
+npm install
+npm run dev</code></pre>
+
+  <p>Vite spustí vývojový server na <code>http://localhost:5173</code> (nebo <code>:5174</code> pokud je port obsazený). Všechny požadavky na <code>/api/*</code> a <code>/media/*</code> jsou automaticky proxovány na backend.</p>
+
+  <div class="callout tip">
+    <strong>Síťový přístup</strong>
+    Pokud chcete přistupovat z jiného zařízení v síti (telefon, tablet), použijte IP adresu místo <code>localhost</code>: <code>http://192.168.x.x:5173</code>. Vite proxy automaticky přesměruje API na backend.
+  </div>
+
+  <h3>3. Env proměnné (volitelné pro vývoj)</h3>
+
+  <pre><code># Zkopírujte šablonu
+cp .env.example .env
+
+# .env pro lokální vývoj
+DJANGO_SECRET_KEY=my-local-dev-key-not-for-production
+DEBUG=True</code></pre>
+
+  <h2 id="docker-dev">Docker — vývojový stack</h2>
+
+  <pre><code># Spuštění celého stacku (PostgreSQL + Django + Vite)
+docker compose up --build
+
+# V jiném terminálu — apply migrace
+docker compose exec backend uv run python manage.py migrate
+docker compose exec backend uv run python manage.py createsuperuser</code></pre>
+
+  <p>Stack spustí:</p>
+  <ul>
+    <li><strong>db</strong> — PostgreSQL 16 na portu 5432 (interní)</li>
+    <li><strong>backend</strong> — Django na portu <code>8555</code></li>
+    <li><strong>frontend</strong> — Vite dev server na portu <code>5173</code></li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>Env soubor pro Docker</strong>
+    Docker Compose načítá <code>.env</code> ze root adresáře. Minimálně nastavte <code>DJANGO_SECRET_KEY</code> a <code>DB_PASSWORD</code>.
+  </div>
+
+  <h2 id="prvni-uzivatel">Vytvoření testovacího uživatele</h2>
+
+  <pre><code># Lokální vývoj
+uv run python manage.py shell -c "
+from django.contrib.auth.models import User
+User.objects.create_superuser('ivan_dron', 'ivan@dron.cz', 'dron1234')
+print('Hotovo!')
+"
+
+# Docker
+docker compose exec backend uv run python manage.py shell -c "
+from django.contrib.auth.models import User
+User.objects.create_superuser('ivan_dron', 'ivan@dron.cz', 'dron1234')
+"</code></pre>
+
+  <div class="callout info">
+    <strong>Výchozí testovací účet</strong>
+    V tomto projektu byl vytvořen účet <code>ivan_dron</code> / <code>dron1234</code> — pouze pro lokální vývoj, nikdy do produkce.
+  </div>
+
+  <h2 id="porty">Přehled portů</h2>
+
+  <table>
+    <thead><tr><th>Prostředí</th><th>Služba</th><th>Port</th><th>URL</th></tr></thead>
+    <tbody>
+      <tr><td>Lokální</td><td>Django backend</td><td>8001</td><td><code>http://localhost:8001</code></td></tr>
+      <tr><td>Lokální</td><td>Vite frontend</td><td>5173</td><td><code>http://localhost:5173</code></td></tr>
+      <tr><td>Docker dev</td><td>Django backend</td><td>8555</td><td><code>http://localhost:8555</code></td></tr>
+      <tr><td>Docker dev</td><td>Vite frontend</td><td>5173</td><td><code>http://localhost:5173</code></td></tr>
+      <tr><td>Docker prod</td><td>Nginx → backend</td><td>80</td><td><code>http://your-server</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Spuštění testů</h2>
+
+  <h3>Backend testy</h3>
+  <pre><code>uv run pytest              # všechny testy
+uv run pytest -v           # verbose
+uv run pytest --cov        # s coverage reportem (99 %)</code></pre>
+
+  <h3>Frontend testy</h3>
+  <pre><code>cd frontend
+npm test                   # jednorázově
+npm run test:watch         # watch mode
+npm run test:coverage      # s pokrytím</code></pre>
+
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

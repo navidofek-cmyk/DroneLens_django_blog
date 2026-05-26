@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CI/CD &amp; Deploy — DroneLens Docs</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span class="logo-text">DroneLens</span>
+    </div>
+    <span class="logo-sub">Dokumentace v1.0</span>
+  </a>
+  <div class="sidebar-nav">
+    <div class="nav-section">Začínáme</div>
+    <a href="index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Přehled projektu</a>
+    <a href="getting-started.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>Rychlý start</a>
+    <div class="nav-section">Architektura</div>
+    <a href="architecture.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6"/><rect x="16" y="3" width="6" height="6"/><rect x="9" y="15" width="6" height="6"/><path d="M5 9v3h14V9M12 12v3"/></svg>Architektura</a>
+    <a href="models.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Databázové modely</a>
+    <div class="nav-section">Backend</div>
+    <a href="api.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>API Reference</a>
+    <a href="auth.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Autentizace (JWT)</a>
+    <div class="nav-section">Frontend</div>
+    <a href="frontend.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>React komponenty</a>
+    <div class="nav-section">Provoz</div>
+    <a href="docker.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16M4 15h16M10 3L8 21M14 3l2 18"/></svg>Docker</a>
+    <a href="deployment.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>CI/CD &amp; Deploy</a>
+    <a href="testing.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Testy</a>
+  </div>
+  <div class="sidebar-footer">Django 6 · React 19 · DRF · JWT</div>
+</nav>
+
+<main class="main">
+
+  <div class="page-header">
+    <span class="badge">Provoz</span>
+    <h1>🚀 CI/CD &amp; Deployment</h1>
+    <p>GitHub Actions pipeline — automatické testování, build a deploy na produkční server.</p>
+  </div>
+
+  <div class="toc">
+    <strong>Obsah</strong>
+    <a href="#overview">Přehled pipeline</a>
+    <a href="#ci">CI workflow</a>
+    <a href="#cd">CD workflow</a>
+    <a href="#secrets">GitHub Secrets</a>
+    <a href="#env">Env proměnné</a>
+    <a href="#manual">Manuální deploy</a>
+  </div>
+
+  <!-- ── Overview ──────────────────────────────────────────────────── -->
+  <h2 id="overview">Přehled pipeline</h2>
+
+  <pre style="font-size:.82rem"><code>
+  git push → main branch
+        │
+        ▼
+  ┌─────────────────────────────────────────────────────────┐
+  │                  CI workflow (ci.yml)                   │
+  │                                                         │
+  │  ┌─────────────┐  ┌─────────────┐  ┌────────────────┐  │
+  │  │  🐍 Backend  │  │  ⚛️ Frontend │  │  🐳 Docker     │  │
+  │  │  ruff lint  │  │  ESLint     │  │  (po CI pass)  │  │
+  │  │  bandit     │  │  npm build  │  │                │  │
+  │  │  pytest 93  │  │             │  │  push to ghcr  │  │
+  │  │  migrate ✓  │  │             │  │  backend+front │  │
+  │  └─────────────┘  └─────────────┘  └────────────────┘  │
+  └─────────────────────────────────────────────────────────┘
+        │ (vše zelené)
+        ▼
+  ┌─────────────────────────────────────────────────────────┐
+  │                  CD workflow (cd.yml)                   │
+  │  SSH na server → docker compose pull → restart          │
+  │  Health check → Slack notifikace                        │
+  └─────────────────────────────────────────────────────────┘
+</code></pre>
+
+  <!-- ── CI ────────────────────────────────────────────────────────── -->
+  <h2 id="ci">CI workflow (<code>.github/workflows/ci.yml</code>)</h2>
+
+  <p>Spouští se při každém push na <code>main</code> / <code>develop</code> a při Pull Requestech na <code>main</code>.</p>
+
+  <h3>Job: Backend (🐍 Django Tests)</h3>
+
+  <table>
+    <thead><tr><th>Krok</th><th>Akce</th></tr></thead>
+    <tbody>
+      <tr><td>1. Checkout</td><td>Stáhne kód (<code>actions/checkout@v4</code>)</td></tr>
+      <tr><td>2. Setup UV</td><td>Nainstaluje UV package manager (<code>astral-sh/setup-uv@v3</code>)</td></tr>
+      <tr><td>3. Install deps</td><td><code>uv sync --frozen</code> — instaluje včetně dev závislostí (pytest, ruff, bandit)</td></tr>
+      <tr><td>4. Lint</td><td><code>uv run ruff check .</code> — kontrola stylu kódu</td></tr>
+      <tr><td>5. Security scan</td><td><code>uv run bandit -r blog/ django_blog/ -ll</code> — kontrola bezpečnostních problémů</td></tr>
+      <tr><td>6. Tests</td><td><code>uv run python manage.py test blog --verbosity=2</code> — 93 testů</td></tr>
+      <tr><td>7. Migration check</td><td><code>python manage.py migrate --check</code> — ověří, že nejsou neaplikované migrace</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <strong>PostgreSQL service container</strong>
+    CI job spouští PostgreSQL jako service container (ne SQLite) — testy běží na stejné DB jako produkce, čímž se odhalí pg-specifické problémy.
+  </div>
+
+  <h3>Job: Frontend (⚛️ React Build)</h3>
+
+  <table>
+    <thead><tr><th>Krok</th><th>Akce</th></tr></thead>
+    <tbody>
+      <tr><td>1. Checkout</td><td>—</td></tr>
+      <tr><td>2. Node.js 22</td><td>Cache npm podle <code>package-lock.json</code></td></tr>
+      <tr><td>3. Install</td><td><code>cd frontend && npm ci</code></td></tr>
+      <tr><td>4. Lint</td><td><code>npm run lint</code> — ESLint s React rules</td></tr>
+      <tr><td>5. Build</td><td><code>npm run build</code> — Vite produkční build</td></tr>
+      <tr><td>6. Upload artifact</td><td>React <code>dist/</code> uloží jako artifact (7 dní)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Job: Docker Build (🐳)</h3>
+
+  <p>Spouští se <strong>pouze na <code>main</code></strong> a závisí na úspěchu obou předchozích jobů.</p>
+
+  <table>
+    <thead><tr><th>Krok</th><th>Akce</th></tr></thead>
+    <tbody>
+      <tr><td>Docker Buildx</td><td>Nastaví multi-platform builder</td></tr>
+      <tr><td>GHCR login</td><td>Přihlásí se do GitHub Container Registry pomocí <code>GITHUB_TOKEN</code></td></tr>
+      <tr><td>Backend image</td><td>Build + push <code>ghcr.io/org/repo/backend:latest</code> a <code>:sha</code></td></tr>
+      <tr><td>Frontend image</td><td>Build + push <code>ghcr.io/org/repo/frontend:latest</code> (target: prod)</td></tr>
+    </tbody>
+  </table>
+
+  <p>Oba buildy používají <code>cache-from: type=gha</code> — GitHub Actions cache zrychluje opakované buildy.</p>
+
+  <!-- ── CD ────────────────────────────────────────────────────────── -->
+  <h2 id="cd">CD workflow (<code>.github/workflows/cd.yml</code>)</h2>
+
+  <p>Deploy na produkci probíhá automaticky po úspěšném CI na <code>main</code>.</p>
+
+  <pre><code>name: CD — Deploy to Production
+
+on:
+  workflow_run:
+    workflows: ["CI — Test & Build"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: 🚀 Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /opt/django_blog
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
+            docker image prune -f
+
+      - name: ❤️ Health check
+        run: |
+          sleep 10
+          curl -f https://${{ secrets.SERVER_HOST }}/api/posts/ || exit 1
+
+      - name: 💬 Slack notification
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            { "text": "✅ DroneLens deployed to production: ${{ github.sha }}" }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}</code></pre>
+
+  <!-- ── Secrets ────────────────────────────────────────────────────── -->
+  <h2 id="secrets">GitHub Secrets (nastavení)</h2>
+
+  <p>Nastavte v repozitáři → Settings → Secrets and variables → Actions:</p>
+
+  <table>
+    <thead><tr><th>Secret</th><th>Popis</th><th>Kde použit</th></tr></thead>
+    <tbody>
+      <tr><td><code>DJANGO_SECRET_KEY</code></td><td>Produkční Django secret key</td><td>docker-compose.prod.yml</td></tr>
+      <tr><td><code>DB_PASSWORD</code></td><td>PostgreSQL heslo</td><td>docker-compose.prod.yml</td></tr>
+      <tr><td><code>AWS_ACCESS_KEY_ID</code></td><td>AWS klíč pro S3</td><td>backend env</td></tr>
+      <tr><td><code>AWS_SECRET_ACCESS_KEY</code></td><td>AWS secret pro S3</td><td>backend env</td></tr>
+      <tr><td><code>AWS_STORAGE_BUCKET_NAME</code></td><td>Název S3 bucketu</td><td>backend env</td></tr>
+      <tr><td><code>SERVER_HOST</code></td><td>IP nebo doménové jméno serveru</td><td>CD SSH deploy</td></tr>
+      <tr><td><code>SERVER_USER</code></td><td>SSH uživatel (např. <code>ubuntu</code>)</td><td>CD SSH deploy</td></tr>
+      <tr><td><code>SERVER_SSH_KEY</code></td><td>Privátní SSH klíč</td><td>CD SSH deploy</td></tr>
+      <tr><td><code>SLACK_WEBHOOK_URL</code></td><td>Slack webhook URL pro notifikace</td><td>CD notifikace</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ── Env vars ───────────────────────────────────────────────────── -->
+  <h2 id="env">Env proměnné (.env.example)</h2>
+
+  <pre><code># ── Django ─────────────────────────────────────────────────────
+DJANGO_SECRET_KEY=your-super-secret-key-here-min-50-chars
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=your-domain.com www.your-domain.com
+
+# ── Database ────────────────────────────────────────────────────
+DB_NAME=droneview
+DB_USER=droneuser
+DB_PASSWORD=your-secure-db-password
+
+# ── AWS S3 (produkce — media storage) ──────────────────────────
+USE_S3=True
+AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+AWS_STORAGE_BUCKET_NAME=dronel-ens-media
+AWS_S3_REGION_NAME=eu-central-1
+
+# ── CORS ────────────────────────────────────────────────────────
+CORS_ALLOWED_ORIGINS=https://your-domain.com</code></pre>
+
+  <!-- ── Manual deploy ─────────────────────────────────────────────── -->
+  <h2 id="manual">Manuální deploy na VPS</h2>
+
+  <ol class="steps">
+    <li>
+      <strong>Příprava serveru</strong>
+      <pre><code>sudo apt update && sudo apt install -y docker.io docker-compose-plugin git
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER</code></pre>
+    </li>
+    <li>
+      <strong>Klonování projektu</strong>
+      <pre><code>git clone https://github.com/your-org/django_blog.git /opt/django_blog
+cd /opt/django_blog
+cp .env.example .env
+nano .env  # vyplňte produkční hodnoty</code></pre>
+    </li>
+    <li>
+      <strong>Spuštění produkčního stacku</strong>
+      <pre><code>docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml exec backend uv run python manage.py createsuperuser</code></pre>
+    </li>
+    <li>
+      <strong>SSL certifikát (Let's Encrypt)</strong>
+      <pre><code>sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domain.com
+# Certifikát se automaticky obnoví přes cron</code></pre>
+    </li>
+    <li>
+      <strong>Ověření běhu</strong>
+      <pre><code>curl https://your-domain.com/api/posts/
+docker compose -f docker-compose.prod.yml ps</code></pre>
+    </li>
+  </ol>
+
+  <div class="callout danger">
+    <strong>Produkční checklist</strong>
+    Před prvním spuštěním v produkci: (1) nastavte silný <code>DJANGO_SECRET_KEY</code>, (2) nastavte <code>DJANGO_DEBUG=False</code>, (3) nastavte správné <code>DJANGO_ALLOWED_HOSTS</code>, (4) použijte HTTPS, (5) pravidelné zálohy PostgreSQL.
+  </div>
+
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

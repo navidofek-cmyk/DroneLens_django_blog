@@ -1,0 +1,52 @@
+name: CD — Deploy to Production
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']          # deploy také na tag v1.0.0, v2.3.1 atd.
+
+jobs:
+  deploy:
+    name: 🚀 Deploy
+    runs-on: ubuntu-latest
+    environment: production   # GitHub Environment s ochranou (required reviewers)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🔐 SSH deploy na server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd /srv/droneview
+
+            # Stáhni nové image
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose -f docker-compose.prod.yml pull
+
+            # Zero-downtime restart
+            docker compose -f docker-compose.prod.yml up -d --no-deps --build backend
+            docker compose -f docker-compose.prod.yml up -d --no-deps --build frontend
+
+            # Cleanup starých images
+            docker image prune -f
+
+      - name: ✅ Health check
+        run: |
+          sleep 10
+          curl -f https://${{ secrets.DEPLOY_HOST }}/api/posts/ || exit 1
+
+      - name: 📢 Notify (volitelné)
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "${{ job.status == 'success' && '✅' || '❌' }} Deploy ${{ github.ref_name }} — ${{ job.status }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true   # notifikace není kritická

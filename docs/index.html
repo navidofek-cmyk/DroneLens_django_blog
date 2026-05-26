@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DroneLens — Dokumentace</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><text y='20' font-size='20'>🚁</text></svg>">
+</head>
+<body>
+
+<!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+      <span class="logo-text">DroneLens</span>
+    </div>
+    <span class="logo-sub">Dokumentace v1.0</span>
+  </a>
+
+  <div class="sidebar-nav">
+    <div class="nav-section">Začínáme</div>
+    <a href="index.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Přehled projektu
+    </a>
+    <a href="getting-started.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+      Rychlý start
+    </a>
+
+    <div class="nav-section">Architektura</div>
+    <a href="architecture.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6"/><rect x="16" y="3" width="6" height="6"/><rect x="9" y="15" width="6" height="6"/><path d="M5 9v3h14V9M12 12v3"/></svg>
+      Architektura
+    </a>
+    <a href="models.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      Databázové modely
+    </a>
+
+    <div class="nav-section">Backend</div>
+    <a href="api.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+      API Reference
+    </a>
+    <a href="auth.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Autentizace (JWT)
+    </a>
+
+    <div class="nav-section">Frontend</div>
+    <a href="frontend.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      React komponenty
+    </a>
+
+    <div class="nav-section">Provoz</div>
+    <a href="docker.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16M4 15h16M10 3L8 21M14 3l2 18"/></svg>
+      Docker
+    </a>
+    <a href="deployment.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      CI/CD &amp; Deploy
+    </a>
+    <a href="testing.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Testy
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    Django 6 · React 19 · DRF · JWT<br>
+    <a href="https://github.com" target="_blank">GitHub repozitář</a>
+  </div>
+</nav>
+
+<!-- ── Main ────────────────────────────────────────────────────────────── -->
+<main class="main">
+
+  <div class="page-header">
+    <span class="badge">Přehled</span>
+    <h1>🚁 DroneLens</h1>
+    <p>Moderní blog pro sdílení drone fotografií. Django REST API backend + React SPA frontend s JWT autentizací, drag&amp;drop nahrávání fotek a automatickým čtením EXIF dat.</p>
+  </div>
+
+  <!-- Stats row -->
+  <div class="card-grid">
+    <div class="stat-card">
+      <div class="stat-num">15</div>
+      <div class="stat-label">API endpointů</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">4</div>
+      <div class="stat-label">DB modely</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">93</div>
+      <div class="stat-label">Backend testů</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">99%</div>
+      <div class="stat-label">Pokrytí kódem</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">40+</div>
+      <div class="stat-label">Frontend testů</div>
+    </div>
+  </div>
+
+  <h2>Co to je?</h2>
+  <p>
+    DroneLens je full-stack webová aplikace, kde pilot dronu může publikovat fotografie pořízené dronem,
+    zaznamenat GPS lokaci, výšku letu a model dronu. Čtenáři mohou procházet články,
+    filtrovat podle kategorií a tagů, a komentovat příspěvky.
+  </p>
+  <p>
+    Projekt byl navržen jako vzdělávací příklad moderního Django + React stacku s
+    pokrytím celého vývojového cyklu: od lokálního vývoje přes Docker po CI/CD pipeline.
+  </p>
+
+  <h2>Technologický stack</h2>
+
+  <table>
+    <thead><tr><th>Vrstva</th><th>Technologie</th><th>Verze</th><th>Účel</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge-blue">Backend</span></td><td><strong>Django</strong></td><td>6.0</td><td>Web framework</td></tr>
+      <tr><td><span class="badge-blue">Backend</span></td><td><strong>Django REST Framework</strong></td><td>3.17</td><td>REST API</td></tr>
+      <tr><td><span class="badge-blue">Backend</span></td><td><strong>SimpleJWT</strong></td><td>5.5</td><td>JWT autentizace</td></tr>
+      <tr><td><span class="badge-blue">Backend</span></td><td><strong>django-ratelimit</strong></td><td>4.1</td><td>Rate limiting</td></tr>
+      <tr><td><span class="badge-blue">Backend</span></td><td><strong>django-storages + boto3</strong></td><td>1.14</td><td>S3 úložiště (produkce)</td></tr>
+      <tr><td><span class="badge-blue">Backend</span></td><td><strong>Gunicorn</strong></td><td>26</td><td>WSGI server</td></tr>
+      <tr><td><span class="badge-green">Frontend</span></td><td><strong>React</strong></td><td>19</td><td>UI framework</td></tr>
+      <tr><td><span class="badge-green">Frontend</span></td><td><strong>Vite</strong></td><td>8</td><td>Build tool</td></tr>
+      <tr><td><span class="badge-green">Frontend</span></td><td><strong>TanStack Query</strong></td><td>5</td><td>Data fetching &amp; cache</td></tr>
+      <tr><td><span class="badge-green">Frontend</span></td><td><strong>React Router</strong></td><td>7</td><td>SPA routing</td></tr>
+      <tr><td><span class="badge-green">Frontend</span></td><td><strong>Bootstrap 5</strong></td><td>5.3</td><td>UI komponenty &amp; CSS</td></tr>
+      <tr><td><span class="badge-green">Frontend</span></td><td><strong>exifr</strong></td><td>7.x</td><td>EXIF čtení z drone fotek</td></tr>
+      <tr><td><span class="badge-amber">DB</span></td><td><strong>SQLite</strong></td><td>—</td><td>Vývoj</td></tr>
+      <tr><td><span class="badge-amber">DB</span></td><td><strong>PostgreSQL</strong></td><td>16</td><td>Produkce</td></tr>
+      <tr><td><span class="badge-red">Ops</span></td><td><strong>Docker + Compose</strong></td><td>—</td><td>Kontejnerizace</td></tr>
+      <tr><td><span class="badge-red">Ops</span></td><td><strong>GitHub Actions</strong></td><td>—</td><td>CI/CD pipeline</td></tr>
+      <tr><td><span class="badge-red">Ops</span></td><td><strong>Nginx</strong></td><td>—</td><td>Reverzní proxy (prod)</td></tr>
+      <tr><td><span class="badge-red">Ops</span></td><td><strong>UV</strong></td><td>—</td><td>Python package manager</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Struktura projektu</h2>
+
+  <div class="filetree">
+<span class="dir">django_blog/</span>
+├── <span class="dir">blog/</span>                        <span class="dim"># Django aplikace</span>
+│   ├── models.py                  <span class="dim"># Post, Category, Tag, Comment, Photo</span>
+│   ├── serializers.py             <span class="dim"># DRF serializers (6 tříd)</span>
+│   ├── api_views.py               <span class="dim"># REST views (11 tříd)</span>
+│   ├── api_urls.py                <span class="dim"># URL routing pro /api/</span>
+│   ├── admin.py                   <span class="dim"># Django admin konfigurace</span>
+│   └── tests.py                   <span class="dim"># 93 pytest testů</span>
+├── <span class="dir">django_blog/</span>                 <span class="dim"># Django konfigurace</span>
+│   ├── settings.py
+│   └── urls.py
+├── <span class="dir">frontend/</span>                    <span class="dim"># React SPA</span>
+│   ├── <span class="dir">src/</span>
+│   │   ├── <span class="dir">api/</span>
+│   │   │   └── axios.js           <span class="dim"># Axios instance + JWT interceptor</span>
+│   │   ├── <span class="dir">components/</span>
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── PhotoUploader.jsx  <span class="dim"># Drag&amp;drop + EXIF</span>
+│   │   │   └── ErrorBoundary.jsx
+│   │   ├── <span class="dir">context/</span>
+│   │   │   └── AuthContext.jsx    <span class="dim"># login/logout/register</span>
+│   │   ├── <span class="dir">pages/</span>
+│   │   │   ├── PostList.jsx       <span class="dim"># Homepage s filtry</span>
+│   │   │   ├── PostDetail.jsx     <span class="dim"># Článek + komentáře + galerie</span>
+│   │   │   ├── PostForm.jsx       <span class="dim"># Vytvoření/editace</span>
+│   │   │   ├── MyPosts.jsx        <span class="dim"># Moje články</span>
+│   │   │   ├── Login.jsx
+│   │   │   └── Register.jsx
+│   │   └── <span class="dir">test/</span>               <span class="dim"># Vitest + MSW testy</span>
+│   ├── vite.config.js
+│   └── package.json
+├── <span class="dir">docker/</span>
+│   ├── nginx.conf
+│   └── backend-entrypoint.sh
+├── <span class="dir">.github/workflows/</span>
+│   ├── ci.yml
+│   └── cd.yml
+├── Dockerfile.backend
+├── Dockerfile.frontend
+├── docker-compose.yml             <span class="dim"># Dev</span>
+├── docker-compose.prod.yml        <span class="dim"># Produkce</span>
+├── pyproject.toml                 <span class="dim"># UV / Python deps</span>
+└── pytest.ini
+  </div>
+
+  <h2>Klíčové funkce</h2>
+
+  <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+
+    <div class="card">
+      <h3 style="margin-top:0">📸 Drone fotoblog</h3>
+      <p style="color:var(--text-dim);font-size:.9rem">Každý článek může obsahovat GPS lokaci, výšku letu a model dronu. Data se čtou automaticky z EXIF metadat.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">🔐 JWT autentizace</h3>
+      <p style="color:var(--text-dim);font-size:.9rem">Access token (5 min) + refresh token (7 dní). Axios interceptor automaticky obnovuje token při 401.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">🛡️ Rate limiting</h3>
+      <p style="color:var(--text-dim);font-size:.9rem">DRF throttling: 10 přihlášení/min, 5 registrací/hod. django-ratelimit na citlivých endpointech.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">🐳 Docker ready</h3>
+      <p style="color:var(--text-dim);font-size:.9rem">Oddělené docker-compose pro vývoj (SQLite + Vite HMR) a produkci (PostgreSQL + Nginx + Gunicorn).</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">🧪 Komplexní testy</h3>
+      <p style="color:var(--text-dim);font-size:.9rem">93 Django testů (99 % pokrytí kódu), 40+ React testů s MSW mock serverem pro simulaci API.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">☁️ S3 storage</h3>
+      <p style="color:var(--text-dim);font-size:.9rem">Produkce ukládá obrázky do AWS S3 (nebo kompatibilního) přes django-storages. Lokálně MEDIA_ROOT.</p>
+    </div>
+
+  </div>
+
+  <h2>Rychlý start</h2>
+
+  <p>Celý projekt lokálně nastartujete třemi příkazy:</p>
+
+  <pre><code># Backend
+cd django_blog
+uv sync
+uv run python manage.py migrate
+uv run python manage.py runserver 8001
+
+# Frontend (nový terminál)
+cd frontend
+npm install
+npm run dev</code></pre>
+
+  <p>→ Aplikace běží na <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></p>
+  <p>→ Podrobný návod: <a href="getting-started.html">Rychlý start</a></p>
+
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

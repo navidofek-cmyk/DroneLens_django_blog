@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+.venv
+*.egg-info
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# React
+frontend/node_modules/
+frontend/dist/
+frontend/.env*
+
+# Secrets — NIKDY do image!
+.env
+*.env
+secrets/
+
+# Dev tools
+.idea/
+.vscode/
+*.log

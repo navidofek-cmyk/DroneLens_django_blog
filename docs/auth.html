@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autentizace (JWT) — DroneLens Docs</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span class="logo-text">DroneLens</span>
+    </div>
+    <span class="logo-sub">Dokumentace v1.0</span>
+  </a>
+  <div class="sidebar-nav">
+    <div class="nav-section">Začínáme</div>
+    <a href="index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Přehled projektu</a>
+    <a href="getting-started.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>Rychlý start</a>
+    <div class="nav-section">Architektura</div>
+    <a href="architecture.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6"/><rect x="16" y="3" width="6" height="6"/><rect x="9" y="15" width="6" height="6"/><path d="M5 9v3h14V9M12 12v3"/></svg>Architektura</a>
+    <a href="models.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Databázové modely</a>
+    <div class="nav-section">Backend</div>
+    <a href="api.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>API Reference</a>
+    <a href="auth.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Autentizace (JWT)</a>
+    <div class="nav-section">Frontend</div>
+    <a href="frontend.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>React komponenty</a>
+    <div class="nav-section">Provoz</div>
+    <a href="docker.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16M4 15h16M10 3L8 21M14 3l2 18"/></svg>Docker</a>
+    <a href="deployment.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>CI/CD &amp; Deploy</a>
+    <a href="testing.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Testy</a>
+  </div>
+  <div class="sidebar-footer">Django 6 · React 19 · DRF · JWT</div>
+</nav>
+
+<main class="main">
+
+  <div class="page-header">
+    <span class="badge">Backend</span>
+    <h1>🔐 Autentizace — JWT</h1>
+    <p>Kompletní popis JWT flow: jak backend vydává tokeny a jak frontend automaticky obnovuje přístup.</p>
+  </div>
+
+  <h2>Jak JWT funguje</h2>
+
+  <p>DroneLens používá <strong>JSON Web Tokens</strong> (JWT) přes knihovnu <code>djangorestframework-simplejwt</code>.</p>
+
+  <p>Po přihlášení server vydá <strong>dva tokeny</strong>:</p>
+
+  <table>
+    <thead><tr><th>Token</th><th>Platnost</th><th>Účel</th><th>Uložení</th></tr></thead>
+    <tbody>
+      <tr><td><strong>access</strong></td><td>5 minut</td><td>Autorizace API požadavků</td><td><code>localStorage</code></td></tr>
+      <tr><td><strong>refresh</strong></td><td>7 dní</td><td>Získání nového access tokenu</td><td><code>localStorage</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Bezpečnostní poznámka</strong>
+    Ukládání JWT do <code>localStorage</code> je citlivé na XSS útoky. Pro produkční aplikace zvažte <code>httpOnly</code> cookies. Pro výukový projekt je <code>localStorage</code> dostačující.
+  </div>
+
+  <h2>Backend konfigurace (settings.py)</h2>
+
+  <pre><code>SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME':  timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS':  False,
+    'ALGORITHM': 'HS256',
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}</code></pre>
+
+  <h2>Axios interceptor (frontend)</h2>
+
+  <p>Soubor <code>frontend/src/api/axios.js</code> vytváří Axios instance s automatickým JWT flow:</p>
+
+  <pre><code>// 1. Před každým požadavkem — přidá Authorization header
+axiosInstance.interceptors.request.use(config => {
+  const token = localStorage.getItem('access')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+// 2. Po každé chybě 401 — pokusí se obnovit token
+axiosInstance.interceptors.response.use(
+  res => res,
+  async err => {
+    if (err.response?.status === 401 && !err.config._retry) {
+      err.config._retry = true
+      try {
+        const refresh = localStorage.getItem('refresh')
+        const { data } = await axios.post('/api/auth/refresh/', { refresh })
+        localStorage.setItem('access', data.access)
+        err.config.headers.Authorization = `Bearer ${data.access}`
+        return axiosInstance(err.config)   // opakuj původní požadavek
+      } catch {
+        localStorage.removeItem('access')
+        localStorage.removeItem('refresh')
+        window.location.href = '/login'    // přesměruj na login
+      }
+    }
+    return Promise.reject(err)
+  }
+)</code></pre>
+
+  <h2>AuthContext (React)</h2>
+
+  <p>Soubor <code>frontend/src/context/AuthContext.jsx</code> spravuje stav přihlášeného uživatele:</p>
+
+  <pre><code>// Při mountu — načte uživatele pokud je v localStorage access token
+useEffect(() => {
+  const token = localStorage.getItem('access')
+  if (token) {
+    axiosInstance.get('/api/auth/me/')
+      .then(res => setUser(res.data))
+      .catch(() => setUser(null))
+  }
+}, [])
+
+// login — uloží tokeny, nastaví user
+const login = async (username, password) => {
+  const { data } = await axiosInstance.post('/api/auth/login/', { username, password })
+  localStorage.setItem('access', data.access)
+  localStorage.setItem('refresh', data.refresh)
+  const me = await axiosInstance.get('/api/auth/me/')
+  setUser(me.data)
+}
+
+// logout — smaže tokeny
+const logout = () => {
+  localStorage.removeItem('access')
+  localStorage.removeItem('refresh')
+  setUser(null)
+}</code></pre>
+
+  <h2>Rate limiting na auth endpointech</h2>
+
+  <p>Chráníme auth endpointy před brute-force útoky pomocí DRF throttling:</p>
+
+  <pre><code>class LoginRateThrottle(AnonRateThrottle):
+    rate = '10/min'   # max 10 pokusů o přihlášení za minutu z jedné IP
+
+class RegisterRateThrottle(AnonRateThrottle):
+    rate = '5/hour'   # max 5 registrací za hodinu z jedné IP</code></pre>
+
+  <div class="callout tip">
+    <strong>Bypass v testech</strong>
+    Backend testy dekorují testovací třídy pomocí <code>@override_settings(REST_FRAMEWORK={...})</code> který vypne throttling. Viz soubor <code>blog/tests.py</code> — dekorátor <code>@NO_THROTTLE</code>.
+  </div>
+
+  <h2>Chráněné vs veřejné endpointy</h2>
+
+  <table>
+    <thead><tr><th>Endpoint</th><th>Přístup</th><th>Poznámka</th></tr></thead>
+    <tbody>
+      <tr><td>GET /api/posts/</td><td><span class="badge-green">Veřejný</span></td><td>Pouze publikované články</td></tr>
+      <tr><td>GET /api/posts/{slug}/</td><td><span class="badge-green">Veřejný</span></td><td>Pouze publishovaný</td></tr>
+      <tr><td>POST /api/posts/</td><td><span class="badge-amber">JWT</span></td><td>Vytvoření — libovolný auth. uživatel</td></tr>
+      <tr><td>PATCH/DELETE /api/posts/{slug}/</td><td><span class="badge-amber">JWT</span></td><td>Pouze autor nebo staff</td></tr>
+      <tr><td>GET /api/posts/my/</td><td><span class="badge-amber">JWT</span></td><td>Vlastní články (drafty i published)</td></tr>
+      <tr><td>POST /api/posts/{slug}/comments/</td><td><span class="badge-amber">JWT</span></td><td>Psát komentáře smí jen přihlášení</td></tr>
+      <tr><td>GET /api/posts/{slug}/comments/</td><td><span class="badge-green">Veřejný</span></td><td>Číst komentáře smí každý</td></tr>
+      <tr><td>POST /api/posts/{slug}/photos/</td><td><span class="badge-red">Autor</span></td><td>Nahrávat smí pouze autor článku</td></tr>
+      <tr><td>DELETE /api/photos/{id}/</td><td><span class="badge-red">Autor</span></td><td>Mazat smí pouze autor nebo staff</td></tr>
+      <tr><td>GET /api/auth/me/</td><td><span class="badge-amber">JWT</span></td><td>Vrátí aktuálního uživatele</td></tr>
+    </tbody>
+  </table>
+
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

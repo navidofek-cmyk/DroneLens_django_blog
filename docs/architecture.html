@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Architektura — DroneLens Docs</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span class="logo-text">DroneLens</span>
+    </div>
+    <span class="logo-sub">Dokumentace v1.0</span>
+  </a>
+  <div class="sidebar-nav">
+    <div class="nav-section">Začínáme</div>
+    <a href="index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Přehled projektu</a>
+    <a href="getting-started.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>Rychlý start</a>
+    <div class="nav-section">Architektura</div>
+    <a href="architecture.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6"/><rect x="16" y="3" width="6" height="6"/><rect x="9" y="15" width="6" height="6"/><path d="M5 9v3h14V9M12 12v3"/></svg>Architektura</a>
+    <a href="models.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Databázové modely</a>
+    <div class="nav-section">Backend</div>
+    <a href="api.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>API Reference</a>
+    <a href="auth.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Autentizace (JWT)</a>
+    <div class="nav-section">Frontend</div>
+    <a href="frontend.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>React komponenty</a>
+    <div class="nav-section">Provoz</div>
+    <a href="docker.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16M4 15h16M10 3L8 21M14 3l2 18"/></svg>Docker</a>
+    <a href="deployment.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>CI/CD &amp; Deploy</a>
+    <a href="testing.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Testy</a>
+  </div>
+  <div class="sidebar-footer">Django 6 · React 19 · DRF · JWT</div>
+</nav>
+
+<main class="main">
+
+  <div class="page-header">
+    <span class="badge">Architektura</span>
+    <h1>🏗️ Architektura projektu</h1>
+    <p>Přehled celkového designu — jak backend, frontend a infrastruktura spolupracují.</p>
+  </div>
+
+  <h2>Přehled architektury</h2>
+
+  <p>DroneLens používá <strong>oddělený backend a frontend</strong> (decoupled architecture):</p>
+
+  <ul>
+    <li><strong>Django backend</strong> — pouze REST API (žádné šablony). Vrací JSON.</li>
+    <li><strong>React SPA</strong> — celý UI v prohlížeči. Komunikuje s backendem přes fetch/axios.</li>
+    <li><strong>Nginx</strong> (produkce) — reverzní proxy, obsluhuje statické soubory a přeposílá <code>/api/*</code> na Django.</li>
+  </ul>
+
+  <pre style="font-size:.82rem"><code>
+┌─────────────────────────────────────────────────────────────────┐
+│                         PROHLÍŽEČ                               │
+│                                                                 │
+│   React SPA (Vite build)                                        │
+│   ┌──────────────┐  axios + JWT   ┌──────────────────────────┐  │
+│   │  React Query │ ─────────────▶ │  /api/*  (Django DRF)    │  │
+│   │  AuthContext │ ◀───────────── │  JWT SimpleJWT           │  │
+│   │  React Router│                │  Rate limiting           │  │
+│   └──────────────┘                └──────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                                           │
+                              ┌────────────▼────────────┐
+                              │      DATABÁZE           │
+                              │   SQLite (dev)          │
+                              │   PostgreSQL (prod)     │
+                              └─────────────────────────┘
+
+PRODUKCE — přes Nginx:
+Browser → Nginx :80
+             ├── /api/*  → Django :8555 (Gunicorn)
+             ├── /media/ → Django :8555
+             ├── /admin/ → Django :8555
+             └── /*      → React build (index.html)
+</code></pre>
+
+  <h2>Tok požadavku</h2>
+
+  <h3>Veřejný článek (GET)</h3>
+  <ol class="steps">
+    <li>Uživatel otevře <code>/post/praha-z-vysky</code> v prohlížeči</li>
+    <li>React Router renderuje komponentu <code>PostDetail</code></li>
+    <li>TanStack Query pošle <code>GET /api/posts/praha-z-vysky/</code></li>
+    <li>Django DRF vrátí JSON s článkem, komentáři a galerií</li>
+    <li>React zobrazí stránku, TanStack Query cachuje odpověď (5 min)</li>
+  </ol>
+
+  <h3>Přihlášení + vytvoření článku</h3>
+  <ol class="steps">
+    <li>Uživatel vyplní login formulář, React volá <code>POST /api/auth/login/</code></li>
+    <li>Django vrátí <code>{access, refresh}</code>, AuthContext uloží do <code>localStorage</code></li>
+    <li>Uživatel vyplní PostForm a odešle <code>POST /api/posts/</code></li>
+    <li>Axios přidá <code>Authorization: Bearer {access}</code> automaticky</li>
+    <li>Django ověří token, uloží článek, vrátí 201 Created</li>
+    <li>React Router přesměruje na detail nového článku</li>
+  </ol>
+
+  <h3>JWT refresh flow</h3>
+  <ol class="steps">
+    <li>Access token vyprší (5 minut), server vrátí <code>401 Unauthorized</code></li>
+    <li>Axios interceptor zachytí 401, pošle <code>POST /api/auth/refresh/</code> s refresh tokenem</li>
+    <li>Pokud refresh uspěje — uloží nový access token, opakuje původní požadavek</li>
+    <li>Pokud refresh selže (token expiroval) — smaže tokeny, přesměruje na <code>/login</code></li>
+  </ol>
+
+  <h2>Vrstvy backendu</h2>
+
+  <div class="card-grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card">
+      <h4 style="margin-top:0">Models</h4>
+      <p style="font-size:.85rem;color:var(--text-dim)">ORM modely: Post, Category, Tag, Comment, Photo. Auto-slug z titulu.</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0">Serializers</h4>
+      <p style="font-size:.85rem;color:var(--text-dim)">6 DRF serializerů. PostListSerializer (lightweight) vs PostDetailSerializer (plný). PostWriteSerializer pro create/update.</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0">Views</h4>
+      <p style="font-size:.85rem;color:var(--text-dim)">11 generic views (ListCreateAPIView, RetrieveUpdateDestroyAPIView…). Throttling na register a login.</p>
+    </div>
+  </div>
+
+  <h2>Vrstvy frontendu</h2>
+
+  <table>
+    <thead><tr><th>Vrstva</th><th>Soubor/knihovna</th><th>Odpovědnost</th></tr></thead>
+    <tbody>
+      <tr><td>HTTP</td><td><code>api/axios.js</code></td><td>Singleton axios, JWT interceptor, auto-refresh</td></tr>
+      <tr><td>Stav (auth)</td><td><code>context/AuthContext.jsx</code></td><td>login / logout / register, user objekt</td></tr>
+      <tr><td>Data fetching</td><td>TanStack Query</td><td>Cache, loading/error stavy, invalidace</td></tr>
+      <tr><td>Routing</td><td>React Router v7</td><td>URL ↔ komponenta mapování</td></tr>
+      <tr><td>UI</td><td>Bootstrap 5 + vlastní CSS</td><td>Dark drone theme, responzivní grid</td></tr>
+      <tr><td>Chyby</td><td><code>components/ErrorBoundary.jsx</code></td><td>Catch JS runtime errors</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Bezpečnostní vrstvy</h2>
+
+  <table>
+    <thead><tr><th>Vrstva</th><th>Mechanismus</th><th>Konfigurace</th></tr></thead>
+    <tbody>
+      <tr><td>Autentizace</td><td>JWT (SimpleJWT)</td><td>Access: 5 min, Refresh: 7 dní</td></tr>
+      <tr><td>Rate limiting — login</td><td>DRF throttle</td><td>10 požadavků / min / IP</td></tr>
+      <tr><td>Rate limiting — register</td><td>DRF throttle</td><td>5 registrací / hod / IP</td></tr>
+      <tr><td>CORS</td><td>django-cors-headers</td><td>Povoleny pouze frontend origins</td></tr>
+      <tr><td>HTTP headers</td><td>Django SecurityMiddleware</td><td>HSTS, X-Frame-Options, CSP (prod)</td></tr>
+      <tr><td>Autorizace</td><td>DRF permissions</td><td>IsAuthenticated pro write, AllowAny pro read</td></tr>
+      <tr><td>Vlastnictví</td><td>Custom checks ve views</td><td>Pouze autor nebo staff může editovat/mazat</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Vývojové vs produkční prostředí</h2>
+
+  <table>
+    <thead><tr><th>Aspekt</th><th>Vývoj (lokál)</th><th>Produkce (Docker)</th></tr></thead>
+    <tbody>
+      <tr><td>Databáze</td><td>SQLite (<code>db.sqlite3</code>)</td><td>PostgreSQL 16</td></tr>
+      <tr><td>Media soubory</td><td>Lokální <code>media/</code></td><td>AWS S3 (boto3 + django-storages)</td></tr>
+      <tr><td>Statické soubory</td><td>Django dev server</td><td>whitenoise + Nginx</td></tr>
+      <tr><td>Frontend</td><td>Vite HMR (<code>:5173</code>)</td><td>Nginx servuje React build</td></tr>
+      <tr><td>WSGI</td><td>Django runserver</td><td>Gunicorn (4 workers)</td></tr>
+      <tr><td>DEBUG</td><td><code>True</code></td><td><code>False</code></td></tr>
+      <tr><td>SECRET_KEY</td><td><code>.env</code> nebo default</td><td>Povinný env var</td></tr>
+    </tbody>
+  </table>
+
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

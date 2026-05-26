@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Testy — DroneLens Docs</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span class="logo-text">DroneLens</span>
+    </div>
+    <span class="logo-sub">Dokumentace v1.0</span>
+  </a>
+  <div class="sidebar-nav">
+    <div class="nav-section">Začínáme</div>
+    <a href="index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Přehled projektu</a>
+    <a href="getting-started.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>Rychlý start</a>
+    <div class="nav-section">Architektura</div>
+    <a href="architecture.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6"/><rect x="16" y="3" width="6" height="6"/><rect x="9" y="15" width="6" height="6"/><path d="M5 9v3h14V9M12 12v3"/></svg>Architektura</a>
+    <a href="models.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Databázové modely</a>
+    <div class="nav-section">Backend</div>
+    <a href="api.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>API Reference</a>
+    <a href="auth.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Autentizace (JWT)</a>
+    <div class="nav-section">Frontend</div>
+    <a href="frontend.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>React komponenty</a>
+    <div class="nav-section">Provoz</div>
+    <a href="docker.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16M4 15h16M10 3L8 21M14 3l2 18"/></svg>Docker</a>
+    <a href="deployment.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>CI/CD &amp; Deploy</a>
+    <a href="testing.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Testy</a>
+  </div>
+  <div class="sidebar-footer">Django 6 · React 19 · DRF · JWT</div>
+</nav>
+
+<main class="main">
+
+  <div class="page-header">
+    <span class="badge">Testy</span>
+    <h1>🧪 Testovací sada</h1>
+    <p>Backend: 93 Django testů s 99 % pokrytím kódu. Frontend: 40+ React/Vitest testů s MSW mock serverem.</p>
+  </div>
+
+  <div class="toc">
+    <strong>Obsah</strong>
+    <a href="#backend">Backend testy</a>
+    <a href="#frontend">Frontend testy</a>
+    <a href="#msw">MSW mock server</a>
+    <a href="#helpers">Test helpers</a>
+    <a href="#run">Spuštění testů</a>
+  </div>
+
+  <!-- ── Stats ──────────────────────────────────────────────────────── -->
+  <div class="card-grid">
+    <div class="stat-card"><div class="stat-num">93</div><div class="stat-label">Backend testů</div></div>
+    <div class="stat-card"><div class="stat-num">99%</div><div class="stat-label">Backend coverage</div></div>
+    <div class="stat-card"><div class="stat-num">11</div><div class="stat-label">Test tříd</div></div>
+    <div class="stat-card"><div class="stat-num">40+</div><div class="stat-label">Frontend testů</div></div>
+    <div class="stat-card"><div class="stat-num">6</div><div class="stat-label">Frontend test souborů</div></div>
+  </div>
+
+  <!-- ── Backend ───────────────────────────────────────────────────── -->
+  <h2 id="backend">🐍 Backend testy (pytest + Django)</h2>
+
+  <p>Soubor: <code>blog/tests.py</code>. Používá standardní Django <code>TestCase</code> + <code>APIClient</code> z DRF.</p>
+
+  <h3>Konfigurace (pytest.ini)</h3>
+  <pre><code>[pytest]
+DJANGO_SETTINGS_MODULE = django_blog.settings
+addopts = --reuse-db --cov=blog --cov-report=html --cov-fail-under=80
+python_files = tests.py test_*.py
+python_classes = *Tests
+python_functions = test_*</code></pre>
+
+  <h3>Throttling bypass</h3>
+  <p>Všechny testovací třídy používají dekorátor <code>@NO_THROTTLE</code> — vypne rate limiting v testech:</p>
+  <pre><code>NO_THROTTLE = override_settings(
+    REST_FRAMEWORK={
+        **settings.REST_FRAMEWORK,
+        'DEFAULT_THROTTLE_CLASSES': [],
+    }
+)
+
+@NO_THROTTLE
+class AuthTests(TestCase):
+    ...</code></pre>
+
+  <h3>Generování testovacích obrázků</h3>
+  <pre><code>def _minimal_image(filename='test.jpg'):
+    """Vrátí SimpleUploadedFile s minimálním platným JPEG (1×1 px) generovaným Pillow."""
+    buf = io.BytesIO()
+    PILImage.new('RGB', (1, 1), color=(255, 0, 0)).save(buf, format='JPEG')
+    return SimpleUploadedFile(filename, buf.getvalue(), content_type='image/jpeg')</code></pre>
+
+  <h3>Přehled testovacích tříd</h3>
+
+  <table>
+    <thead><tr><th>Třída</th><th>Testů</th><th>Co testuje</th></tr></thead>
+    <tbody>
+      <tr><td><code>AuthTests</code></td><td>~12</td><td>Registrace, přihlášení, refresh token, /me/ endpoint, validace hesel, duplicitní username</td></tr>
+      <tr><td><code>PostListTests</code></td><td>~10</td><td>Výpis článků (published only), vyhledávání, filtr kategorie/tag, stránkování</td></tr>
+      <tr><td><code>PostDetailTests</code></td><td>~8</td><td>Detail článku, 404 pro neexistující, content + komentáře + galerie v odpovědi</td></tr>
+      <tr><td><code>PostCreateTests</code></td><td>~10</td><td>Vytvoření článku, autentizace, nahrávání obrázku, auto-slug, tags_input</td></tr>
+      <tr><td><code>PostUpdateTests</code></td><td>~8</td><td>PATCH/PUT, pouze autor smí editovat, 403 pro cizí článek</td></tr>
+      <tr><td><code>PostDeleteTests</code></td><td>~5</td><td>DELETE, pouze autor nebo staff, 403 pro cizí</td></tr>
+      <tr><td><code>MyPostsTests</code></td><td>~5</td><td>Moje články — draft i published, autentizace, přesměrování</td></tr>
+      <tr><td><code>CommentTests</code></td><td>~10</td><td>Čtení komentářů, přidání, pouze přihlášení, is_approved=True filtr</td></tr>
+      <tr><td><code>PhotoTests</code></td><td>~10</td><td>Nahrávání fotek, pouze autor, mazání, 403 pro cizí</td></tr>
+      <tr><td><code>CategoryTagTests</code></td><td>~8</td><td>Výpis kategorií s post_count, výpis tagů</td></tr>
+      <tr><td><code>PermissionTests</code></td><td>~7</td><td>Cross-cutting — všechny auth požadavky bez tokenu vrátí 401</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Ukázka testu (vytvoření článku)</h3>
+  <pre><code>def test_create_post_with_image(self):
+    """Přihlášený uživatel může vytvořit článek s obrázkem."""
+    self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self._get_token(self.user)}')
+    payload = {
+        'title':     'Test Drone Shot',
+        'content':   'Popis fotky z dronu.',
+        'status':    'published',
+        'location':  'Brno, CZ',
+        'altitude':  150,
+        'drone_model': 'DJI Air 3',
+        'cover_image': _minimal_image('cover.jpg'),
+    }
+    res = self.client.post('/api/posts/', payload, format='multipart')
+    self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    post = Post.objects.get(slug='test-drone-shot')
+    self.assertEqual(post.altitude, 150)
+    self.assertTrue(post.cover_image.name.endswith('.jpg'))
+
+def test_create_post_unauthorized(self):
+    """Nepřihlášený uživatel dostane 401."""
+    res = self.client.post('/api/posts/', {'title': 'X', 'content': 'Y'})
+    self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)</code></pre>
+
+  <h3>Spuštění backend testů</h3>
+  <pre><code># Základní spuštění
+uv run pytest
+
+# S výstupem
+uv run pytest -v
+
+# Pouze konkrétní třída
+uv run pytest blog/tests.py::AuthTests
+
+# S coverage (HTML report v htmlcov/)
+uv run pytest --cov=blog --cov-report=html
+open htmlcov/index.html</code></pre>
+
+  <!-- ── Frontend ──────────────────────────────────────────────────── -->
+  <h2 id="frontend">⚛️ Frontend testy (Vitest + Testing Library)</h2>
+
+  <p>Testy jsou v <code>frontend/src/test/</code>. Každý test importuje komponenty a renderuje je v <code>jsdom</code> prostředí.</p>
+
+  <h3>Stack</h3>
+  <table>
+    <thead><tr><th>Knihovna</th><th>Účel</th></tr></thead>
+    <tbody>
+      <tr><td><code>vitest</code></td><td>Test runner (Vite-native, rychlý)</td></tr>
+      <tr><td><code>@testing-library/react</code></td><td>Renderování komponent, dotazy na DOM</td></tr>
+      <tr><td><code>@testing-library/user-event</code></td><td>Simulace kliknutí, psaní textu</td></tr>
+      <tr><td><code>msw</code> (Mock Service Worker)</td><td>Interceptuje HTTP požadavky, vrací mock data</td></tr>
+      <tr><td><code>jsdom</code></td><td>Simulovaný prohlížeč v Node.js</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Přehled test souborů</h3>
+
+  <table>
+    <thead><tr><th>Soubor</th><th>Testů</th><th>Co testuje</th></tr></thead>
+    <tbody>
+      <tr><td><code>components/Navbar.test.jsx</code></td><td>7</td><td>Navbar pro přihlášeného i nepřihlášeného uživatele</td></tr>
+      <tr><td><code>pages/PostList.test.jsx</code></td><td>9</td><td>Seznam článků, filtry, skeleton, error stav, prázdný výsledek</td></tr>
+      <tr><td><code>pages/PostDetail.test.jsx</code></td><td>9</td><td>Detail článku, drone meta, komentáře, galerie, edit tlačítka</td></tr>
+      <tr><td><code>pages/Login.test.jsx</code></td><td>5</td><td>Login formulář, úspěšné přihlášení, chybová odpověď</td></tr>
+      <tr><td><code>pages/Register.test.jsx</code></td><td>6</td><td>Registrační formulář, validace hesel, úspěšná registrace</td></tr>
+      <tr><td><code>pages/MyPosts.test.jsx</code></td><td>5</td><td>Tabulka článků, redirect nepřihlášeného, prázdný stav</td></tr>
+      <tr><td><code>context/AuthContext.test.jsx</code></td><td>~5</td><td>Login flow, logout, obnovení stavu po refresh</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ── MSW ───────────────────────────────────────────────────────── -->
+  <h2 id="msw">🛡️ MSW Mock Server</h2>
+
+  <p>MSW (Mock Service Worker) interceptuje HTTP požadavky na síťové vrstvě — bez úprav kódu komponent.</p>
+
+  <h3>Handlers (<code>test/mocks/handlers.js</code>)</h3>
+  <pre><code>import { http, HttpResponse } from 'msw'
+import { mockPostsPage, mockPost, mockTokens, mockUser } from './data'
+
+export const handlers = [
+  // Seznam článků
+  http.get('/api/posts/', () => HttpResponse.json(mockPostsPage)),
+
+  // Detail článku
+  http.get('/api/posts/praha-z-vysky-120-metru/', () => HttpResponse.json(mockPost)),
+  http.get('/api/posts/:slug/', ({ params }) =>
+    params.slug === 'neexistujici-clanek'
+      ? HttpResponse.json({ detail: 'Not found.' }, { status: 404 })
+      : HttpResponse.json(mockPost)
+  ),
+
+  // Přihlášení
+  http.post('/api/auth/login/', () => HttpResponse.json(mockTokens)),
+
+  // Aktuální uživatel — POUZE s platným test tokenem
+  http.get('/api/auth/me/', ({ request }) => {
+    const auth = request.headers.get('Authorization')
+    if (auth !== 'Bearer fake.access.token') {
+      return HttpResponse.json({ detail: 'Unauthorized.' }, { status: 401 })
+    }
+    return HttpResponse.json(mockUser)
+  }),
+
+  // Kategorie a tagy
+  http.get('/api/categories/', () => HttpResponse.json([mockCategory])),
+  http.get('/api/tags/', () => HttpResponse.json([mockTag])),
+
+  // Moje články
+  http.get('/api/posts/my/', () => HttpResponse.json(mockPostsPage)),
+
+  // Registrace
+  http.post('/api/auth/register/', () =>
+    HttpResponse.json({ ...mockUser, access: 'fake.access.token' })
+  ),
+]</code></pre>
+
+  <h3>Mock data (<code>test/mocks/data.js</code>)</h3>
+  <pre><code>export const mockUser = {
+  id: 1,
+  username: 'ivan_dron',
+  email: 'ivan@dron.cz',
+  full_name: 'Ivan Dron',
+}
+
+export const mockPost = {
+  id: 1,
+  title: 'Praha z výšky 120 metrů',
+  slug: 'praha-z-vysky-120-metru',
+  author: mockUser,
+  excerpt: 'Historické centrum Prahy z ptačí perspektivy.',
+  content: 'Pohled na historické centrum Prahy z ptačí perspektivy...',
+  category: { id: 1, name: 'Krajina', slug: 'krajina', post_count: 5 },
+  tags: [{ id: 1, name: 'DJI', slug: 'dji' }],
+  status: 'published',
+  published_at: '2026-05-20T10:00:00Z',
+  location: 'Praha, Česká republika',
+  altitude: 120,
+  drone_model: 'DJI Mini 4 Pro',
+  comment_count: 1,
+  photo_count: 2,
+  comments: [{ id: 1, author: mockUser, content: 'Skvělé záběry!', created_at: '...', is_approved: true }],
+  photos: [{ id: 1, image: '/media/test.jpg', caption: '', order: 0 }],
+}
+
+export const mockTokens = {
+  access: 'fake.access.token',
+  refresh: 'fake.refresh.token',
+}</code></pre>
+
+  <!-- ── Helpers ────────────────────────────────────────────────────── -->
+  <h2 id="helpers">🧰 Test helpers</h2>
+
+  <h3><code>test/helpers.jsx</code></h3>
+  <pre><code>/**
+ * renderWithProviders — obalí komponentu všemi potřebnými providery:
+ * QueryClientProvider + MemoryRouter + AuthContext
+ */
+export function renderWithProviders(ui, { initialEntries = ['/'] } = {}) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } }
+  })
+  return render(
+    &lt;QueryClientProvider client={queryClient}&gt;
+      &lt;MemoryRouter initialEntries={initialEntries}&gt;
+        &lt;AuthProvider&gt;{ui}&lt;/AuthProvider&gt;
+      &lt;/MemoryRouter&gt;
+    &lt;/QueryClientProvider&gt;
+  )
+}
+
+/** Nastaví localStorage jako by byl uživatel přihlášen */
+export function mockLoggedIn(token = 'fake.access.token') {
+  localStorage.setItem('access', token)
+  localStorage.setItem('refresh', 'fake.refresh.token')
+}
+
+/** Vyčistí localStorage (odhlášení) */
+export function mockLoggedOut() {
+  localStorage.removeItem('access')
+  localStorage.removeItem('refresh')
+}</code></pre>
+
+  <h3>Proč MemoryRouter?</h3>
+  <p>Komponenty jako <code>PostDetail</code> používají <code>useParams()</code> — k tomu musí být uvnitř Router kontextu. V testech používáme <code>MemoryRouter</code> s <code>initialEntries</code> (žádný skutečný prohlížeč URL).</p>
+
+  <h3>PostDetail v testech</h3>
+  <p>Komponenty používající <code>useParams()</code> musí být zabaleny v <code>Routes + Route</code>:</p>
+  <pre><code>function PostDetailRoute() {
+  return (
+    &lt;Routes&gt;
+      &lt;Route path="/post/:slug" element={&lt;PostDetail /&gt;} /&gt;
+      &lt;Route path="*" element={&lt;div&gt;not found page&lt;/div&gt;} /&gt;
+    &lt;/Routes&gt;
+  )
+}
+
+it('zobrazí titulek článku', async () => {
+  renderWithProviders(&lt;PostDetailRoute /&gt;, {
+    initialEntries: ['/post/praha-z-vysky-120-metru'],
+  })
+  await waitFor(() => {
+    expect(screen.getByRole('heading', {
+      name: /Praha z výšky 120 metrů/
+    })).toBeInTheDocument()
+  }, { timeout: 3000 })
+})</code></pre>
+
+  <!-- ── Run ────────────────────────────────────────────────────────── -->
+  <h2 id="run">⚡ Spuštění testů</h2>
+
+  <h3>Backend</h3>
+  <pre><code># Všechny testy
+uv run pytest
+
+# Verbose výstup
+uv run pytest -v
+
+# Konkrétní třída nebo test
+uv run pytest blog/tests.py::AuthTests
+uv run pytest blog/tests.py::AuthTests::test_register_creates_user
+
+# Coverage HTML report
+uv run pytest --cov=blog --cov-report=html
+# → htmlcov/index.html
+
+# Výsledek: 93 passed, coverage 99.14%</code></pre>
+
+  <h3>Frontend</h3>
+  <pre><code>cd frontend
+
+# Jednorázové spuštění
+npm test
+
+# Watch mode (re-spuštění při změně)
+npm run test:watch
+
+# S coverage reportem
+npm run test:coverage
+
+# Konkrétní soubor
+npx vitest run src/test/pages/PostList.test.jsx</code></pre>
+
+  <h3>Obě sady najednou (CI simulace)</h3>
+  <pre><code># Backend (musí být aktivní databáze nebo SQLite)
+uv run pytest -v
+
+# Frontend
+cd frontend && npm test -- --reporter=verbose</code></pre>
+
+  <div class="callout tip">
+    <strong>Tipy pro debugování testů</strong>
+    Pokud test selže na async data (waitFor timeout), zkuste: (1) zvýšit timeout na 5000ms, (2) zkontrolovat MSW handler zda odpovídá URL, (3) přidat <code>screen.debug()</code> pro výpis aktuálního DOM.
+  </div>
+
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

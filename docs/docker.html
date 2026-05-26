@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Docker — DroneLens Docs</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span class="logo-text">DroneLens</span>
+    </div>
+    <span class="logo-sub">Dokumentace v1.0</span>
+  </a>
+  <div class="sidebar-nav">
+    <div class="nav-section">Začínáme</div>
+    <a href="index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Přehled projektu</a>
+    <a href="getting-started.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>Rychlý start</a>
+    <div class="nav-section">Architektura</div>
+    <a href="architecture.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6"/><rect x="16" y="3" width="6" height="6"/><rect x="9" y="15" width="6" height="6"/><path d="M5 9v3h14V9M12 12v3"/></svg>Architektura</a>
+    <a href="models.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Databázové modely</a>
+    <div class="nav-section">Backend</div>
+    <a href="api.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>API Reference</a>
+    <a href="auth.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Autentizace (JWT)</a>
+    <div class="nav-section">Frontend</div>
+    <a href="frontend.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>React komponenty</a>
+    <div class="nav-section">Provoz</div>
+    <a href="docker.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16M4 15h16M10 3L8 21M14 3l2 18"/></svg>Docker</a>
+    <a href="deployment.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>CI/CD &amp; Deploy</a>
+    <a href="testing.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Testy</a>
+  </div>
+  <div class="sidebar-footer">Django 6 · React 19 · DRF · JWT</div>
+</nav>
+
+<main class="main">
+
+  <div class="page-header">
+    <span class="badge">Provoz</span>
+    <h1>🐳 Docker</h1>
+    <p>Kompletní kontejnerizace — vývojový stack s hot-reload i produkční build s Nginx a Gunicorn.</p>
+  </div>
+
+  <div class="toc">
+    <strong>Obsah</strong>
+    <a href="#overview">Přehled</a>
+    <a href="#backend">Dockerfile.backend</a>
+    <a href="#frontend">Dockerfile.frontend</a>
+    <a href="#compose-dev">docker-compose (dev)</a>
+    <a href="#compose-prod">docker-compose (prod)</a>
+    <a href="#nginx">Nginx konfigurace</a>
+    <a href="#entrypoint">Entrypoint script</a>
+    <a href="#commands">Užitečné příkazy</a>
+  </div>
+
+  <h2 id="overview">Přehled kontejnerů</h2>
+
+  <table>
+    <thead><tr><th>Kontejner</th><th>Obraz</th><th>Port</th><th>Prostředí</th></tr></thead>
+    <tbody>
+      <tr><td><strong>db</strong></td><td>postgres:16-alpine</td><td>5432 (interní)</td><td>Dev + Prod</td></tr>
+      <tr><td><strong>backend</strong></td><td>Dockerfile.backend</td><td>8555</td><td>Dev + Prod</td></tr>
+      <tr><td><strong>frontend</strong> (dev)</td><td>Dockerfile.frontend (dev target)</td><td>5173</td><td>Dev</td></tr>
+      <tr><td><strong>frontend</strong> (prod)</td><td>Dockerfile.frontend (prod target)</td><td>80</td><td>Prod</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ── Backend Dockerfile ─────────────────────────────────────────── -->
+  <h2 id="backend">Dockerfile.backend</h2>
+
+  <pre><code>FROM python:3.12-slim
+
+# System deps (libpq pro psycopg2, gcc pro kompilaci)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev gcc curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# UV package manager
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# 🔒 Non-root user — bezpečnostní best practice
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+WORKDIR /app
+
+# Instalace závislostí (cache layer — pouze pokud se změní pyproject.toml)
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+
+COPY . .
+
+# Media a staticfiles adresáře s správnými právy
+RUN mkdir -p media staticfiles \
+    && chown -R appuser:appuser /app
+
+COPY docker/backend-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+USER appuser   # 🔒 od teď neběžíme jako root
+EXPOSE 8555
+ENTRYPOINT ["/entrypoint.sh"]</code></pre>
+
+  <h4>Klíčové rozhodnutí</h4>
+  <ul>
+    <li><strong>python:3.12-slim</strong>: minimální image bez zbytečných nástrojů</li>
+    <li><strong>UV místo pip</strong>: 10–100× rychlejší instalace závislostí</li>
+    <li><strong><code>--frozen</code></strong>: instaluje přesně verze z <code>uv.lock</code> — reprodukovatelné buildy</li>
+    <li><strong><code>--no-dev</code></strong>: dev závislosti (pytest, ruff) se do produkčního image neinstalují</li>
+    <li><strong>Non-root user</strong>: kontejner neběží jako root → menší bezpečnostní riziko</li>
+    <li><strong>Layers cache</strong>: <code>pyproject.toml + uv.lock</code> se kopírují před kódem → cache se invaliduje jen při změně deps</li>
+  </ul>
+
+  <!-- ── Frontend Dockerfile ────────────────────────────────────────── -->
+  <h2 id="frontend">Dockerfile.frontend</h2>
+
+  <pre><code># ─── Dev target — Vite HMR ─────────────────────────────────────────────────
+FROM node:22-alpine AS dev
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ .
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host"]
+
+# ─── Build stage ────────────────────────────────────────────────────────────
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ .
+RUN npm run build
+
+# ─── Production — Nginx obsluhuje React build ──────────────────────────────
+FROM nginx:alpine AS prod
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80</code></pre>
+
+  <h4>Multi-stage build</h4>
+  <ul>
+    <li><strong>dev</strong>: spouští Vite dev server s HMR (hot module replacement) — kód se aktualizuje bez restartu</li>
+    <li><strong>builder</strong>: vytvoří produkční build (<code>npm run build</code> → <code>dist/</code>)</li>
+    <li><strong>prod</strong>: minimální Nginx image, kopíruje pouze finální HTML/CSS/JS z builderu</li>
+  </ul>
+
+  <!-- ── docker-compose dev ─────────────────────────────────────────── -->
+  <h2 id="compose-dev">docker-compose.yml (development)</h2>
+
+  <pre><code>services:
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: droneview
+      POSTGRES_USER: droneuser
+      POSTGRES_PASSWORD: dronepass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U droneuser -d droneview"]
+      interval: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    depends_on:
+      db:
+        condition: service_healthy   # čeká na zdravou DB
+    environment:
+      DJANGO_SECRET_KEY: "super-secret-change-in-production-xyz-123"
+      DJANGO_DEBUG: "True"
+      DATABASE_URL: "postgresql://droneuser:dronepass@db:5432/droneview"
+      CORS_ALLOWED_ORIGINS: "http://localhost:5173"
+    volumes:
+      - media_data:/app/media
+      - .:/app           # live reload — změny kódu viditelné okamžitě
+    ports:
+      - "8555:8555"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: dev        # použije pouze dev stage
+    depends_on: [backend]
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules   # node_modules je izolováno v kontejneru
+    ports:
+      - "5173:5173"</code></pre>
+
+  <!-- ── docker-compose prod ────────────────────────────────────────── -->
+  <h2 id="compose-prod">docker-compose.prod.yml (production)</h2>
+
+  <pre><code>services:
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    image: ghcr.io/your-org/django_blog-backend:${TAG:-latest}
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: "False"
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      # S3 storage pro media
+      USE_S3: "True"
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_STORAGE_BUCKET_NAME: ${AWS_STORAGE_BUCKET_NAME}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: ghcr.io/your-org/django_blog-frontend:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: prod       # produkční Nginx build
+    ports:
+      - "80:80"
+    depends_on: [backend]</code></pre>
+
+  <!-- ── Nginx ──────────────────────────────────────────────────────── -->
+  <h2 id="nginx">Nginx konfigurace</h2>
+
+  <p>Soubor <code>docker/nginx.conf</code> — Nginx obsluhuje React SPA a přeposílá API požadavky na Django:</p>
+
+  <pre><code>server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # React SPA — neznámé URL → index.html (client-side routing)
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # API → Django backend (Gunicorn)
+    location /api/ {
+        proxy_pass       http://backend:8555;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # Media a admin → Django
+    location /media/  { proxy_pass http://backend:8555; }
+    location /admin/  { proxy_pass http://backend:8555; }
+    location /static/ { proxy_pass http://backend:8555; }
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+}</code></pre>
+
+  <h4>Proč <code>try_files $uri $uri/ /index.html</code>?</h4>
+  <p>React Router pracuje na straně klienta. Nginx musí vracet <code>index.html</code> pro libovolnou URL (např. <code>/post/muj-clanek</code>), aby React mohl URL zpracovat. Bez tohoto nastavení by Nginx vrátil 404.</p>
+
+  <!-- ── Entrypoint ─────────────────────────────────────────────────── -->
+  <h2 id="entrypoint">Backend entrypoint script</h2>
+
+  <p>Soubor <code>docker/backend-entrypoint.sh</code>:</p>
+
+  <pre><code>#!/bin/bash
+set -e
+
+# Počkej na databázi (zdravotní kontrola)
+echo "Čekám na databázi..."
+until uv run python manage.py check --database default 2>/dev/null; do
+  sleep 1
+done
+
+# Automatická migrace
+echo "Spouštím migrace..."
+uv run python manage.py migrate --noinput
+
+# Statické soubory
+echo "Sbírám statické soubory..."
+uv run python manage.py collectstatic --noinput
+
+# Spuštění Gunicorn
+echo "Startuji Gunicorn..."
+exec uv run gunicorn django_blog.wsgi:application \
+    --bind 0.0.0.0:8555 \
+    --workers 4 \
+    --timeout 120</code></pre>
+
+  <!-- ── Commands ───────────────────────────────────────────────────── -->
+  <h2 id="commands">Užitečné Docker příkazy</h2>
+
+  <pre><code># Spuštění dev stacku
+docker compose up --build
+
+# Spuštění na pozadí
+docker compose up -d
+
+# Logy konkrétního kontejneru
+docker compose logs -f backend
+
+# Spuštění Django příkazů
+docker compose exec backend uv run python manage.py migrate
+docker compose exec backend uv run python manage.py createsuperuser
+docker compose exec backend uv run python manage.py shell
+
+# Resetování DB (VAROVÁNÍ: smaže data!)
+docker compose down -v
+
+# Produkční build
+docker compose -f docker-compose.prod.yml up --build
+
+# Rebuild pouze jednoho kontejneru
+docker compose up --build backend</code></pre>
+
+  <div class="callout warn">
+    <strong>Dev vs Prod volumes</strong>
+    V dev compose souboru je backend volume <code>.:/app</code> — celý zdrojový kód je mount do kontejneru. To umožňuje live reload, ale <strong>nesmí se použít v produkci</strong>. Produkce používá image z registru.
+  </div>
+
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

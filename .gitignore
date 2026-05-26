@@ -1,0 +1,26 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Django
+*.sqlite3
+media/
+staticfiles/
+
+# React
+frontend/node_modules/
+frontend/dist/
+
+# Docker / env
+.env
+
+# IDE
+.idea/
+.vscode/
