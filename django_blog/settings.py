@@ -40,11 +40,19 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
     "blog",
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -56,6 +64,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "django_blog.urls"
@@ -188,3 +197,33 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
     "http://localhost:5173 http://localhost:5174 http://localhost:3000 http://frontend:5173",
 ).split()
 CORS_ALLOW_CREDENTIALS = True
+
+# ─── Allauth ──────────────────────────────────────────────────────────────────
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # povinné ověření emailu
+ACCOUNT_CONFIRM_EMAIL_ON_GET = False  # ověření přes POST (SPA friendly)
+ACCOUNT_LOGIN_METHODS = {"username", "email"}  # přihlášení přes username nebo email
+ACCOUNT_SIGNUP_FIELDS = [  # povinná pole při registraci
+    "email*",
+    "username*",
+    "password1*",
+    "password2*",
+]
+
+# ─── dj-rest-auth (JWT) ───────────────────────────────────────────────────────
+REST_AUTH = {
+    "USE_JWT": True,
+    "JWT_AUTH_HTTPONLY": False,  # tokeny v body, ne v cookie
+    "TOKEN_MODEL": None,  # nepoužíváme DRF token auth, jen JWT
+}
+
+# ─── Email ────────────────────────────────────────────────────────────────────
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+    EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+    DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@dronenelens.com")

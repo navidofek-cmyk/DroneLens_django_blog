@@ -7,6 +7,7 @@ kategorie/tagy a oprávnění.
 
 import io
 
+from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
@@ -53,6 +54,13 @@ class AuthTests(TestCase):
             email="pilot@example.com",
             password="heslo1234",
         )
+        # allauth vyžaduje ověřený email pro přihlášení
+        EmailAddress.objects.create(
+            user=self.existing_user,
+            email="pilot@example.com",
+            verified=True,
+            primary=True,
+        )
 
     def _get_token(self, user):
         """Vrátí JWT access token pro daného uživatele."""
@@ -66,35 +74,35 @@ class AuthTests(TestCase):
         payload = {
             "username": "new_pilot",
             "email": "new@example.com",
-            "password": "bezpecne99",
+            "password1": "bezpecne99",
             "password2": "bezpecne99",
         }
-        res = self.client.post("/api/auth/register/", payload)
+        res = self.client.post("/api/auth/registration/", payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertTrue(User.objects.filter(username="new_pilot").exists())
 
-    def test_register_returns_user_data(self):
-        """Odpověď na registraci obsahuje username a email (ale ne heslo)."""
+    def test_register_returns_verification_detail(self):
+        """Odpověď na registraci obsahuje info o odeslání ověřovacího emailu (bez hesla)."""
         payload = {
             "username": "novy_pilot",
             "email": "novy@example.com",
-            "password": "bezpecne99",
+            "password1": "bezpecne99",
             "password2": "bezpecne99",
         }
-        res = self.client.post("/api/auth/register/", payload)
+        res = self.client.post("/api/auth/registration/", payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data["username"], "novy_pilot")
-        self.assertNotIn("password", res.data)
+        self.assertNotIn("password1", res.data)
+        self.assertNotIn("password2", res.data)
 
     def test_register_password_mismatch_returns_400(self):
         """Neshodující se hesla vrátí 400."""
         payload = {
             "username": "xpilot",
             "email": "x@x.cz",
-            "password": "heslo1111",
+            "password1": "heslo1111",
             "password2": "heslo9999",
         }
-        res = self.client.post("/api/auth/register/", payload)
+        res = self.client.post("/api/auth/registration/", payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_register_duplicate_username_returns_400(self):
@@ -102,15 +110,15 @@ class AuthTests(TestCase):
         payload = {
             "username": "existing_pilot",
             "email": "other@example.com",
-            "password": "heslo1234",
+            "password1": "heslo1234",
             "password2": "heslo1234",
         }
-        res = self.client.post("/api/auth/register/", payload)
+        res = self.client.post("/api/auth/registration/", payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_register_missing_fields_returns_400(self):
         """Chybějící povinná pole vrátí 400."""
-        res = self.client.post("/api/auth/register/", {"username": "x"})
+        res = self.client.post("/api/auth/registration/", {"username": "x"})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     # ── Přihlášení ──────────────────────────────────────────────────────────
@@ -128,8 +136,8 @@ class AuthTests(TestCase):
         self.assertIn("access", res.data)
         self.assertIn("refresh", res.data)
 
-    def test_login_wrong_password_returns_401(self):
-        """Špatné heslo vrátí 401."""
+    def test_login_wrong_password_returns_400(self):
+        """Špatné heslo vrátí 400 (dj-rest-auth vrací 400, ne 401)."""
         res = self.client.post(
             "/api/auth/login/",
             {
@@ -137,10 +145,10 @@ class AuthTests(TestCase):
                 "password": "spatne_heslo",
             },
         )
-        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_login_nonexistent_user_returns_401(self):
-        """Neexistující uživatel vrátí 401."""
+    def test_login_nonexistent_user_returns_400(self):
+        """Neexistující uživatel vrátí 400 (dj-rest-auth vrací 400, ne 401)."""
         res = self.client.post(
             "/api/auth/login/",
             {
@@ -148,7 +156,7 @@ class AuthTests(TestCase):
                 "password": "cokoliv",
             },
         )
-        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     # ── Refresh token ────────────────────────────────────────────────────────
 
